@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import checkSums.CheckSumVerifier;
 import fileVerification.AcceptAllAsciiVerifier;
 import fileVerification.AsciiVerifier;
+import fileVerification.DdCard;
 import fileVerification.LogAsciiVerifier;
 import fileVerification.MyFileVisitor;
 
@@ -45,8 +46,9 @@ public class Main {
 
 			if(runDd){
 				System.out.println("Beginning DD of Card...");
-				//dd card here
-				System.out.println("Finished DD of Card...");
+				DdCard dder = new DdCard();
+				dder.runDD();
+				System.out.println("Finished DD of Card.");
 			}
 
 		} catch (NoSuchFileException e) {
