@@ -1,6 +1,6 @@
 package main;
 
-public class CommandlineVerifier {
+public class CommandlineParser {
 
 	public static String getRootPath(String[] args) {
 
@@ -24,6 +24,15 @@ public class CommandlineVerifier {
 	public static boolean runDd(String[] args) {
 		for(String arg: args){
 			if(arg.contains("-dd")){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean checkForAscii(String[] args) {
+		for(String arg: args){
+			if(arg.contains("-ascii")){
 				return true;
 			}
 		}

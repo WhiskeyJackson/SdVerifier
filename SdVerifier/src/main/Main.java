@@ -1,11 +1,15 @@
 package main;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import checkSums.CheckSumVerifier;
+import fileVerification.AcceptAllAsciiVerifier;
+import fileVerification.AsciiVerifier;
+import fileVerification.LogAsciiVerifier;
 import fileVerification.MyFileVisitor;
 
 public class Main {
@@ -14,22 +18,29 @@ public class Main {
 		String rootPath = "";
 		String packageName = "";
 		boolean runDd = false;
+		boolean checkAscii = false;
 
 		try{
 
-			rootPath = CommandlineVerifier.getRootPath(args);
-			packageName = CommandlineVerifier.getPackage(args);
-			runDd = CommandlineVerifier.runDd(args);
+			rootPath = CommandlineParser.getRootPath(args);
+			packageName = CommandlineParser.getPackage(args);
+			runDd = CommandlineParser.runDd(args);
+			checkAscii = CommandlineParser.checkForAscii(args);
 
 			//rootPath = "/media/nicholasf/8273-74F7/";
 			//packageName = "12.6.3";
 
 			CheckSumVerifier checksumVerifier = CheckSumVerifier.createCheckSumVerifierForPackage(packageName);
+			AsciiVerifier asciiVerifier;
+
+			if(checkAscii == true){
+				asciiVerifier = new LogAsciiVerifier();
+			} else {
+				asciiVerifier = new AcceptAllAsciiVerifier();
+			}
 
 			System.out.println("Beginning check of " + rootPath + "*");
-			Path path = Paths.get(rootPath);
-			MyFileVisitor<Path> visitor = new MyFileVisitor<Path>(checksumVerifier);
-			Files.walkFileTree(path, visitor);
+			readFileSystem(rootPath, checksumVerifier, asciiVerifier);
 			System.out.println("Finished Checking Card for Read Errors");
 
 			if(runDd){
@@ -45,6 +56,12 @@ public class Main {
 		}
 
 
+	}
+
+	private static void readFileSystem(String rootPath, CheckSumVerifier checksumVerifier, AsciiVerifier asciiVerifier) throws IOException {
+		Path path = Paths.get(rootPath);
+		MyFileVisitor<Path> visitor = new MyFileVisitor<Path>(checksumVerifier, asciiVerifier);
+		Files.walkFileTree(path, visitor);
 	}
 
 }

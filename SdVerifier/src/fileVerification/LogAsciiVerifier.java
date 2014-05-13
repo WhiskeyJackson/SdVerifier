@@ -3,17 +3,10 @@ package fileVerification;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AsciVerifier {
+public class LogAsciiVerifier implements AsciiVerifier{
 
-	private final byte[] fileData;
-	private String fileName = "";
-
-	public AsciVerifier(String fileName, byte[] fileData) {
-		this.fileData = fileData;
-		this.fileName  = fileName;
-	}
-
-	public void verify(){
+	@Override
+	public void verify(String fileName, byte[] fileData){
 		Pattern pattern = Pattern.compile("([\\x00-\\x08]|[\\x0B-\\x0C]|[\\x0E-\\x1F]|[\\x80-\\xFF])");
 
 

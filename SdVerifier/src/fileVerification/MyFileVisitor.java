@@ -1,27 +1,22 @@
 package fileVerification;
 
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import javax.xml.bind.DatatypeConverter;
 
 import checkSums.CheckSumVerifier;
 
 public class MyFileVisitor<T> extends SimpleFileVisitor<Path>{
 
 	private final CheckSumVerifier checkSumVerifier;
+	private final AsciiVerifier asciiVerifier;
 
-	public MyFileVisitor(CheckSumVerifier checksumVerifier) {
+	public MyFileVisitor(CheckSumVerifier checksumVerifier, AsciiVerifier asciiVerifier) {
 		this.checkSumVerifier = checksumVerifier;
+		this.asciiVerifier = asciiVerifier;
 	}
 
 	@Override
@@ -32,32 +27,20 @@ public class MyFileVisitor<T> extends SimpleFileVisitor<Path>{
 			String fileName = path.getFileName().toString();
 			File file = path.toFile();
 
+			CheckSummedFileReader csfr = new CheckSummedFileReader(file);
 			byte[] fileData = new byte[(int) file.length()];
-			FileInputStream fis = new FileInputStream(file);
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			DigestInputStream digis = new DigestInputStream(fis, md);
-			DataInputStream dis = new DataInputStream(digis);
-			//System.out.println("Reading " + fileName);
+			String checksum = csfr.read(fileData);
 
-			dis.readFully(fileData);
-			byte[] digest = md.digest();
+			checkSumVerifier.verifyFile(fileName, checksum);
 
-			if(  (fileName.endsWith(".log") && !fileName.contains("cedevice")) || fileName.endsWith(".adt")
-					|| fileName.endsWith(".xml") || fileName.endsWith(".txt")){
-				//System.out.println("Checking ASCII of " + fileName);
-				AsciVerifier verifier = new AsciVerifier(file.getAbsolutePath(), fileData);
-				verifier.verify();
+			if((fileName.endsWith(".log") && !fileName.contains("cedevice")) || fileName.endsWith(".adt") || fileName.endsWith(".xml")
+					|| fileName.endsWith(".txt") || fileName.endsWith(".mtr") || fileName.endsWith(".llt")){
+				asciiVerifier.verify(file.getAbsolutePath(), fileData);
 			}
 
-			checkSumVerifier.verifyFile(fileName, DatatypeConverter.printHexBinary(digest));
-
-			fis.close();
-			dis.close();
 
 		}catch (IOException ioe){
 			System.err.println("Could Not Open File: " + path.getFileName() + ": " + ioe.getMessage());
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
 		}
 		return FileVisitResult.CONTINUE;
 
