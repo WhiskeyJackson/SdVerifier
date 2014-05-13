@@ -21,4 +21,13 @@ public class CommandlineVerifier {
 		return "no package";
 	}
 
+	public static boolean runDd(String[] args) {
+		for(String arg: args){
+			if(arg.contains("-dd")){
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
