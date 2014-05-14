@@ -28,8 +28,15 @@ public class Main {
 			runDd = CommandlineParser.runDd(args);
 			checkAscii = CommandlineParser.checkForAscii(args);
 
-			//rootPath = "/media/nicholasf/8273-74F7/";
-			//packageName = "12.6.3";
+			String[] pathParts = rootPath.split("/");
+			String imageName = pathParts[pathParts.length-1];
+
+			if(runDd){
+				System.out.println("Beginning DD of Card...");
+				DdCard dder = new DdCard();
+				dder.runDD(imageName);
+				System.out.println("Finished DD of Card.");
+			}
 
 			CheckSumVerifier checksumVerifier = CheckSumVerifier.createCheckSumVerifierForPackage(packageName);
 			AsciiVerifier asciiVerifier;
@@ -44,12 +51,7 @@ public class Main {
 			readFileSystem(rootPath, checksumVerifier, asciiVerifier);
 			System.out.println("Finished Checking Card for Read Errors");
 
-			if(runDd){
-				System.out.println("Beginning DD of Card...");
-				DdCard dder = new DdCard();
-				dder.runDD();
-				System.out.println("Finished DD of Card.");
-			}
+
 
 		} catch (NoSuchFileException e) {
 			System.out.println("Could Not Find Path " + rootPath);
